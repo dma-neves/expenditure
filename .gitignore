@@ -1,0 +1,3 @@
+balancesheets/raw/*.csv
+balancesheets/categorized/*.csv
+__pycache__/

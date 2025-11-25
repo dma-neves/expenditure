@@ -1,0 +1,64 @@
+{
+    "categories": [
+        "salary",
+        "supermarket",
+        "rent",
+        "house_cost",
+        "gas",
+        "eating_out",
+        "cultural_event",
+        "extraordinary_leasure",
+        "extraordinary_required",
+         "received",
+         "other",
+         "health",
+         "transport",
+         "vacation",
+         "drinks",
+         "clothing",
+         "tech",
+         "savings",
+         "ignore"
+    ],
+    "stat_clusters": {
+        "monthly": [
+            "supermarket",
+            "house_cost",
+            "gas",
+            "eating_out",
+            "cultural_event",
+            "transport",
+            "drinks",
+            "received"
+        ],
+        "extra": [
+            "rent",
+            "extraordinary_leasure",
+            "extraordinary_required",
+            "other",
+            "health",
+            "vacation",
+            "clothing",
+            "tech",
+            "savings",
+            "ignore"
+        ]
+    },
+    "plot_cluster": [
+        "supermarket",
+        "house_cost",
+        "gas",
+        "eating_out",
+        "cultural_event",
+        "transport",
+        "drinks"
+    ],
+    "columns": {
+        "LAUNCH_DATE": "Data_Lanc",
+        "VALUE_DATE": "Data_Valor",
+        "DESCRIPTION": "Desc",
+        "VALUE": "Valor",
+        "BALANCE": "Saldo",
+        "CATEGORY": "category"
+    }
+}
