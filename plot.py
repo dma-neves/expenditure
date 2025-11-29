@@ -8,6 +8,11 @@ from config import Config
 
 INVERT_VALUE = True
 
+class CollapseGranularity(Enum):
+    MONTH = 0
+    WEEK = 1
+    DAY = 2
+
 def plot_expenditure_by_category_accumulated_over_time(expenditure_by_category_accumulated, plot_file_path):
     plt.figure(figsize=(12, 6))
 
@@ -25,6 +30,35 @@ def plot_expenditure_by_category_accumulated_over_time(expenditure_by_category_a
     plt.tight_layout()
     plt.savefig(plot_file_path, dpi=300)
     print("Plot created:", plot_file_path)
+
+def get_collapse_granularity(df, config):
+    df_dates = pd.to_datetime(df[config.launch_date_col], format="%d/%m/%Y")
+    number_of_days = (df_dates.max() - df_dates.min()).days
+
+    if number_of_days > 365:
+        return CollapseGranularity.MONTH
+    elif number_of_days > 90:
+        return CollapseGranularity.WEEK
+    else:
+        return CollapseGranularity.DAY
+
+def should_collapse(collapse_granularity, date_0, date_1):
+    d0_day, d0_month, d0_year = map(int, date_0.split("/"))
+    d1_day, d1_month, d1_year = map(int, date_1.split("/"))
+
+    d0_week = d0_day // 7
+    d1_week = d1_day // 7
+
+    if d0_year != d1_year:
+        return False
+
+    if collapse_granularity == CollapseGranularity.MONTH:
+        return d0_month == d1_month
+    elif collapse_granularity == CollapseGranularity.WEEK:
+        return d0_month == d1_month and d0_week == d1_week
+    else:
+        return d0_month == d1_month and d0_day == d1_day
+
         
 def main():
     
@@ -37,6 +71,9 @@ def main():
     path = sys.argv[1]
     df = pd.read_csv(path)
     df[config.value_col] = df[config.value_col].str.replace(',', '').astype(float) # Convert config.value_col column to float
+
+    collapse_granularity = get_collapse_granularity(df, config)
+    print("note: using collapse granularity:", collapse_granularity.name)
 
     expenditure_by_category = {}
     expenditure_by_category_accumulated = {}
@@ -59,7 +96,7 @@ def main():
             
             last_date, _ = expenditure_by_category_accumulated[category][-1]
             
-            if date == last_date:
+            if should_collapse(collapse_granularity, date, last_date):
                 expenditure_by_category_accumulated[category][-1] = (date, accumulated_value)
             else:
                 expenditure_by_category_accumulated[category].append( (date, accumulated_value) )
