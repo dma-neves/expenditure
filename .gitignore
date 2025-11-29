@@ -1,3 +1,4 @@
 balancesheets/raw/*.csv
 balancesheets/categorized/*.csv
 __pycache__/
+data/

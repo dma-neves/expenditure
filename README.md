@@ -20,12 +20,30 @@ In the [config.json](config.json) file, you can edit:
 - Plot cluster to dictate which categories to plot.
 - The exact names of each column is in your input balance sheet.
 
-## Usage
+## Scripts
+
+### categorize
+
+Quickly categorize all rows in balance sheet using a fuzzyfinder. You can save and exit at the middle of the process, return later, and forward to the first uncategorized row.
 
 ```bash
-python3 categorize.py balancesheets/raw/balancesheet.csv
-python3 stats.py balancesheets/categorized/balancesheet.csv [category]
-python3 plot.py balancesheets/categorized/balancesheet.csv
+python3 categorize.py balancesheet.csv balancesheet.cat.csv
+```
+
+### stats
+
+Get a stats report on the categorized balancesheet. To get a detailed view of a specific category, use the optional command line argument.
+
+```bash
+python3 stats.py balancesheet.cat.csv [category]
+```
+
+### plot
+
+Plot the transactions over time.
+
+```bash
+python3 plot.py balancesheet.cat.csv
 ```
 
 ## Example
@@ -73,4 +91,4 @@ Value      Description                                      Date
 ```
 
 
-![alt text](plots/example.png)
+![alt text](example.png)

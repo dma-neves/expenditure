@@ -1,26 +1,32 @@
 import sys
 import pandas as pd
 import numpy as np
-
+from enum import Enum
+import os
 from rapidfuzz import process
 
 
 from config import Config
 from util import print_green, print_blue
 
-EXIT = "exit"
-SAVE = "save"
-HELP = "help"
-        
-def print_help(config):    
-    
+class Command(Enum):
+    EXIT = ("exit", "Exit program")
+    SAVE = ("save", "Save current state")
+    HELP = ("help", "Show help information")
+    PREVIOUS = ("prev", "Go to previous row")
+    FORWARD = ("forward", "Forward to next uncategorized row")
+
+    def __init__(self, value, description):
+        self._value_ = value  # keep the original value
+        self.description = description
+
+def print_help(config):
     print("Categories:")
     for cat in config.categories:
         print_blue(cat)
     print("\nCommands:")
-    print_blue(EXIT)
-    print_blue(SAVE)
-    print_blue(HELP)
+    for command in Command:
+        print_blue(f"{command.value}: {command.description}")
     print()
 
 def print_row(row, config):
@@ -42,47 +48,75 @@ def fuzzy_find_category_based_on_user_input(user_input, config):
         return None
     
 def save(df, path):
-    output_path = path.replace("raw", "categorized")
-    df.to_csv(output_path, index=False)
-    print("Saved to", output_path)
+    df.to_csv(path, index=False)
+    print("Saved to", path)
     
+def get_next_uncategorized_index(config, index, output_path):
+    if not os.path.exists(output_path):
+        print("Output path doesn't exist yet. Staying in current row")
+        return index
+
+    df = pd.read_csv(output_path)
+    idx = df[df[config.category_col].isna()].index[0]
+    print("Forwarding to", idx)
+    return idx
+
+def get_previous_index(index):
+    if index > 0:
+        return index - 1
+    else:
+        print("Already at the first row. Staying in current row")
+        return index
+
 def main():
     
-    if len(sys.argv) < 2:
-        print(f"Usage: {sys.argv[0]} balancesheets/raw/balancesheet.csv")
+    if len(sys.argv) < 3:
+        print(f"Usage: {sys.argv[0]} input.csv output.csv")
         exit()
         
     config = Config("config.json")
     print_help(config)
     
-    path = sys.argv[1]
-    df = pd.read_csv(path)
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+    df = pd.read_csv(input_path)
     df[config.category_col] = pd.Series(dtype='object')
 
 
-    for index, row in df.iterrows():
+    index = 0
+    while index < len(df):
+        print(f"row {index}/{len(df)}")
+
+        row = df.iloc[index]
         print_row(row.to_dict(), config)
         
         category = None
         while category == None:
             user_input = input("category (fuzzyfind) or command: ")
             
-            if user_input == SAVE:
-                save(df, path)
-            elif user_input == EXIT:
+            if user_input == Command.SAVE.value:
+                save(df, output_path)
+            elif user_input == Command.EXIT.value:
                 exit()
-            elif user_input == HELP:
+            elif user_input == Command.HELP.value:
                 print_help(config)
+            elif user_input == Command.PREVIOUS.value:
+                index = get_previous_index(index)
+                break
+            elif user_input == Command.FORWARD.value:
+                index = get_next_uncategorized_index(config, index, output_path)
+                break
             else:
                 category = fuzzy_find_category_based_on_user_input(user_input, config)
                 if category is None:
                     print("Invalid input, try again")
         
-        df.at[index, config.category_col] = category
-        
+        if category is not None:
+            df.at[index, config.category_col] = category
+            index += 1  # move to next row        
         print()
         
-    save(df, path)
+    save(df, output_path)
         
 
 if __name__=="__main__":

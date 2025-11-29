@@ -29,7 +29,8 @@
             "cultural_event",
             "transport",
             "drinks",
-            "received"
+            "received",
+            "clothing"
         ],
         "extra": [
             "rent",
@@ -38,7 +39,6 @@
             "other",
             "health",
             "vacation",
-            "clothing",
             "tech",
             "savings",
             "ignore"
@@ -54,11 +54,11 @@
         "drinks"
     ],
     "columns": {
-        "LAUNCH_DATE": "Data_Lanc",
-        "VALUE_DATE": "Data_Valor",
-        "DESCRIPTION": "Desc",
-        "VALUE": "Valor",
-        "BALANCE": "Saldo",
+        "LAUNCH_DATE": "Launch Date",
+        "VALUE_DATE": "Value Date",
+        "DESCRIPTION": "Description",
+        "VALUE": "Value",
+        "BALANCE": "Balance",
         "CATEGORY": "category"
     }
 }
